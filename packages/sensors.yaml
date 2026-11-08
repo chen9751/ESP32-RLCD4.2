@@ -1,0 +1,30 @@
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  - platform: shtcx
+    i2c_id: board_i2c
+    address: 0x70
+    update_interval: 60s
+    temperature:
+      name: "Room Temperature"
+      id: room_temperature
+    humidity:
+      name: "Room Humidity"
+      id: room_humidity
+
+  # Waveshare schematic: GPIO4 senses battery through a 1/3 divider.
+  - platform: adc
+    id: battery_voltage
+    name: "Battery Voltage"
+    pin: GPIO4
+    attenuation: 12db
+    update_interval: 60s
+    filters:
+      - multiply: 3.0
+
+  - platform: wifi_signal
+    name: "Wi-Fi RSSI"
+    update_interval: 60s
+    entity_category: diagnostic
