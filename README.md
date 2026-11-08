@@ -32,14 +32,19 @@
 
 默认配置是 **Hey Jarvis 本地待机唤醒 + KEY 按键备用触发**，Assist 语音录入使用静音检测自动结束，不默认合成语音。
 
-## 快速开始
+## 快速开始：USB 配网
 
-1. 安装 ESPHome 2026.10.x 或兼容新版本，在同一目录建立自己的 `secrets.yaml`（见 `secrets.example.yaml`）；此文件在 `.gitignore` 中，不要提交真实凭据。
-2. 修改 `secrets.yaml` 的 Wi-Fi、随机生成的 32 字节 Base64 API key、OTA 密码和备用 AP 密码（≥8 字符）。
-3. 先执行 `esphome config esp32-rlcd42.yaml`，再执行 `esphome compile esp32-rlcd42.yaml`。依赖下载需要网络；ST7305 使用社区外部组件。
-4. 首次用 USB 数据线连接设备并执行 `esphome run esp32-rlcd42.yaml`，之后可以 OTA 更新。
-5. Home Assistant 添加 ESPHome 设备，并在 **设置 → 语音助手** 为其配置支持中文的 Assist pipeline 和 STT。说出 Hey Jarvis 或 KEY(GPIO18) 短按开始一次识别，自动静音检测决定何时结束。**按键测试需要 STT 已可用**。
-6. 屏幕刷新初始为 30 秒；按键和语音状态变化会触发即时刷新。
+**不在 YAML/固件中填写 Wi-Fi SSID 与密码。** 首次 USB 烧录后，由 ESPHome `improv_serial` 通过 ESP32-S3 原生 USB Serial/JTAG 接收 Wi-Fi 配置；不启用 BLE 配网、开放热点和 Captive Portal。
+
+1. 安装 ESPHome 2026.10.2（或兼容版本），复制 `secrets.example.yaml` → `secrets.yaml`。
+2. 在本机生成设备专属的 32 字节 Base64 API key，把它填写到 **Git 忽略的** `secrets.yaml`；不要提交 GitHub。
+3. 执行 `esphome config esp32-rlcd42.yaml`，再 `esphome compile esp32-rlcd42.yaml`。
+4. 首次 USB 烧录：`esphome run esp32-rlcd42.yaml`，选择实际的串口端口。
+5. 保持 USB 连接、关闭占用端口的日志程序，使用兼容 Improv Serial 的客户端输入 **2.4GHz Wi-Fi** SSID/密码。
+6. Wi-Fi 联通后，在 HA 中添加 ESPHome 集成，输入设备 IP 及上述相同的 API key。为 Assist 配置有效的中文 STT 与对话代理。
+7. 此后可以通过**加密 OTA** 上传更新；不需要独立 OTA 密码。唤醒词是 **Hey Jarvis**，KEY(GPIO18) 作为手动备用入口。
+
+完整配置和故障恢复见 [USB 配网及 HA 配对](docs/PROVISIONING.md)。ST7305 驱动来自社区；配置校验、固件编译和真机运行结果仍待核验。
 
 ### 可选功能
 
@@ -71,4 +76,4 @@
 
 ## 凭据与首次配网
 
-请阅读 [连接与配网方案](docs/PROVISIONING.md)。推荐首次使用本地 `secrets.yaml` 通过 USB 烧录，之后采用加密 API 和 OTA；不向 GitHub 提交真实 Wi-Fi 密码或加密密钥。
+请阅读 [USB 配网及 HA 配对](docs/PROVISIONING.md)。USB Improv 输入 Wi-Fi，`secrets.yaml` 仅存本地专属 API key，OTA 复用相同 key 加密；不向 GitHub 提交真实密钥。
