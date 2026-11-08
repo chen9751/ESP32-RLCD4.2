@@ -1,0 +1,28 @@
+binary_sensor:
+  - platform: gpio
+    id: key_button
+    name: "KEY Button"
+    pin:
+      number: GPIO18
+      inverted: true
+      mode: INPUT
+    filters:
+      - delayed_on_off: 30ms
+    on_press:
+      # One tap starts one Assist query; VAD/silence detection ends capture.
+      - if:
+          condition:
+            not:
+              voice_assistant.is_running:
+          then:
+            - voice_assistant.start:
+
+  - platform: gpio
+    name: "BOOT Button"
+    pin:
+      number: GPIO0
+      inverted: true
+      mode: INPUT
+    filters:
+      - delayed_on_off: 30ms
+    # Avoid binding GPIO0 to critical actions: it is a boot-strapping pin.
