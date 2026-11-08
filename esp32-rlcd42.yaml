@@ -1,8 +1,9 @@
-# Default firmware: local display/sensors and KEY-triggered HA Assist.
-# Wake word and speaker are intentionally NOT enabled here.
+# ESP32-S3-RLCD-4.2: Hey Jarvis local wake word + KEY fallback.
+# Network and API secrets are supplied privately, not committed to GitHub.
 substitutions:
   device_name: esp32-rlcd42
   friendly_name: RLCD Assist 4.2
+  wake_word_model: hey_jarvis
 
 packages:
   core: !include packages/core.yaml
@@ -10,9 +11,8 @@ packages:
   sensors: !include packages/sensors.yaml
   display: !include packages/display.yaml
   voice: !include packages/voice_ptt.yaml
+  wake: !include packages/wake_word_optional.yaml
   buttons: !include packages/buttons.yaml
 
-  # Optional, enable only after checking memory and the chosen voice pipeline:
+  # Optional audio response: enable only after validating PSRAM and I2S.
   # speaker: !include packages/speaker_optional.yaml
-  # Wake word: choose a verified model first and add wake_word_model substitution.
-  # wake: !include packages/wake_word_optional.yaml
