@@ -1,0 +1,29 @@
+name: Validate ESPHome configuration
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned ESPHome
+        run: python -m pip install esphome==2026.10.2
+      - name: Create CI-only test credentials
+        run: |
+          cat > secrets.yaml <<'EOF'
+          wifi_ssid: "CI-TEST-NO-WIFI"
+          wifi_password: "CI-TEST-PASSWORD"
+          api_encryption_key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+          ota_password: "CI-TEST-OTA"
+          fallback_ap_password: "CI-TEST-FALLBACK"
+          EOF
+      - name: Validate default (PTT) YAML
+        run: esphome config esp32-rlcd42.yaml
