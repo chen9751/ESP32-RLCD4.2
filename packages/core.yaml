@@ -1,3 +1,5 @@
+# Base firmware: USB Improv Serial provisioning.
+# Flash with a per-device API key; enter WLAN SSID/password AFTER flashing.
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
@@ -13,21 +15,27 @@ psram:
   mode: octal
   speed: 80MHz
 
+# ESP-IDF on S3 defaults to native USB Serial/JTAG (GPIO19/20).
+# Improv Serial shares this logger transport.
 logger:
+  hardware_uart: USB_SERIAL_JTAG
 
+improv_serial:
+
+# Do not put Wi-Fi secrets in the firmware. Improv Serial stores the
+# supplied credentials on-device after the user enters them over USB.
+wifi:
+  reboot_timeout: 0s
+
+# Each device needs its own API encryption key generated locally.
+# Do not expose the key through Improv or a public webpage.
 api:
   encryption:
     key: !secret api_encryption_key
+  reboot_timeout: 0s
 
+# On first USB flash, directly enable encrypted OTA (ESPHome 2026.9+).
+# Inherits the Native API encryption key; no separate OTA password needed.
 ota:
   - platform: esphome
-    password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-    ssid: "RLCD42 Recovery"
-    password: !secret fallback_ap_password
-
-captive_portal:
+    encryption:
