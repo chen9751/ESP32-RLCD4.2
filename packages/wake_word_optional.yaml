@@ -1,6 +1,6 @@
-# OPT-IN ONLY. Add as a package after choosing the model and defining
-# substitutions.wake_word_model in esp32-rlcd42.yaml, e.g. an official
-# model ID. No wake word has been chosen as the project default.
+# Local wake-word model. Selected model is defined by the main YAML.
+# On-device recognition uses the ES7210, without sending standby audio to HA.
+# Voice Assistant controls start/stop lifecycle in packages/voice_ptt.yaml.
 esp32:
   framework:
     components:
@@ -21,16 +21,3 @@ micro_wake_word:
     - component.update: rlcd_screen
     - voice_assistant.start:
         wake_word: !lambda "return wake_word;"
-
-voice_assistant:
-  micro_wake_word: local_wake
-  on_client_connected:
-    - micro_wake_word.start:
-  on_client_disconnected:
-    - micro_wake_word.stop:
-  on_end:
-    - delay: 300ms
-    - micro_wake_word.start:
-  on_error:
-    - delay: 300ms
-    - micro_wake_word.start:
