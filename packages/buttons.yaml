@@ -15,6 +15,7 @@ binary_sensor:
             not:
               voice_assistant.is_running:
           then:
+            - micro_wake_word.stop:
             - voice_assistant.start:
 
   - platform: gpio
