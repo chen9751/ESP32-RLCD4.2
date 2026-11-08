@@ -1,0 +1,11 @@
+# Official Waveshare pin map: a shared I2C bus + display-only SPI bus.
+i2c:
+  id: board_i2c
+  sda: GPIO13
+  scl: GPIO14
+  scan: true
+
+spi:
+  id: screen_spi
+  clk_pin: GPIO11
+  mosi_pin: GPIO12
