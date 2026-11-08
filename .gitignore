@@ -1,0 +1,23 @@
+# Private credentials
+secrets.yaml
+**/secrets.yaml
+*.env
+.env
+.env.*
+!.env.example
+
+# ESPHome generated output/cache
+.esphome/
+**/.esphome/
+.pioenvs/
+.piolibdeps/
+platformio.ini
+*.bin
+*.elf
+*.map
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+__pycache__/
