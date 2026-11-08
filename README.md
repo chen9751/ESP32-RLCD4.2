@@ -9,8 +9,8 @@
 - ESPHome 原生 Wi-Fi / 加密 API / OTA，连接 Home Assistant。
 - ST7305 反射式屏显示时间、温湿度、电池电压与语音状态。
 - SHTC3、GPIO4 电池电压、KEY / BOOT 按键。
-- ES7210 双麦克风阵列的 I²S 输入，KEY 按键启动一次 Assist 语音输入。
-- ES8311 扬声器和 microWakeWord 可选装；不默认开启，避免抢占资源或预设唤醒词。
+- ES7210 双麦克风阵列的 I²S 输入，Hey Jarvis 唤醒或者 KEY 按键启动一次 Assist 语音输入。
+- 默认运行 microWakeWord 的 **Hey Jarvis** 英文唤醒模型；ES8311 扬声器为可选功能，默认不播放语音。
 - Home Assistant 负责 STT、意图识别、设备控制。**设备端不运行 Whisper**。
 
 ## 配置入口
@@ -26,11 +26,11 @@
 | `packages/buttons.yaml` | KEY 一键发起 Assist，BOOT 按键状态 |
 | `packages/voice_ptt.yaml` | ES7210 麦克风与 Assist 按键模式 |
 | `packages/speaker_optional.yaml` | 可选 ES8311 扬声器（默认不加载） |
-| `packages/wake_word_optional.yaml` | 可选本地唤醒（**需先选模型**，默认不加载） |
+| `packages/wake_word_optional.yaml` | Hey Jarvis 本地唤醒模型（默认加载） |
 | `docs/HARDWARE.md` | 硬件映射、限制与资料来源 |
 | `docs/VOICE.md` | HA Assist 接入、唤醒词选项、待验证事项 |
 
-默认配置是**按键语音（Push-to-Talk 的一次启动/自动静音结束）**，不是持续语音侦听，也不默认合成语音。
+默认配置是 **Hey Jarvis 本地待机唤醒 + KEY 按键备用触发**，Assist 语音录入使用静音检测自动结束，不默认合成语音。
 
 ## 快速开始
 
@@ -38,7 +38,7 @@
 2. 修改 `secrets.yaml` 的 Wi-Fi、随机生成的 32 字节 Base64 API key、OTA 密码和备用 AP 密码（≥8 字符）。
 3. 先执行 `esphome config esp32-rlcd42.yaml`，再执行 `esphome compile esp32-rlcd42.yaml`。依赖下载需要网络；ST7305 使用社区外部组件。
 4. 首次用 USB 数据线连接设备并执行 `esphome run esp32-rlcd42.yaml`，之后可以 OTA 更新。
-5. Home Assistant 添加 ESPHome 设备，并在 **设置 → 语音助手** 为其配置支持中文的 Assist pipeline 和 STT。KEY(GPIO18) 短按开始一次识别，自动静音检测决定何时结束。**按键测试需要 STT 已可用**。
+5. Home Assistant 添加 ESPHome 设备，并在 **设置 → 语音助手** 为其配置支持中文的 Assist pipeline 和 STT。说出 Hey Jarvis 或 KEY(GPIO18) 短按开始一次识别，自动静音检测决定何时结束。**按键测试需要 STT 已可用**。
 6. 屏幕刷新初始为 30 秒；按键和语音状态变化会触发即时刷新。
 
 ### 可选功能
@@ -49,13 +49,7 @@
   speaker: !include packages/speaker_optional.yaml
 ```
 
-这仅启用扬声器输出链路；是否采用 TTS / media_player、音频反馈的具体交互仍需真机验证。添加唤醒词前请先参考 `docs/VOICE.md`，选定具体模型后再加入：
-
-```yaml
-  wake: !include packages/wake_word_optional.yaml
-```
-
-并在 `substitutions:` 中设置 `wake_word_model`；需要重编译。唤醒模块不随默认配置加载。避免同时运行资源密集的 BLE、音频播放和推理功能。
+这仅启用扬声器输出链路；是否采用 TTS / media_player、音频反馈的具体交互仍需真机验证。本地唤醒词已经选为 `hey_jarvis`，默认编译启用。若要替换模型，修改主配置中的 `wake_word_model`；见 `docs/VOICE.md`。建议先在真机完成微麦克风和待机内存测试。
 
 ## 现实限制
 
@@ -74,3 +68,7 @@
 - ST7305 外部组件：https://github.com/kylehase/ESPHome-ST7305-RLCD
 - ESPHome Voice Assistant：https://esphome.io/components/voice_assistant/
 - ESPHome microWakeWord：https://esphome.io/components/micro_wake_word/
+
+## 凭据与首次配网
+
+请阅读 [连接与配网方案](docs/PROVISIONING.md)。推荐首次使用本地 `secrets.yaml` 通过 USB 烧录，之后采用加密 API 和 OTA；不向 GitHub 提交真实 Wi-Fi 密码或加密密钥。
