@@ -19,7 +19,7 @@ jobs:
       - name: Create CI-only dummy API key
         run: |
           cat > secrets.yaml <<'EOF'
-          api_encryption_key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+          api_encryption_key: "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
           EOF
       - name: Validate USB provisioning and Hey Jarvis configuration
         run: esphome config esp32-rlcd42.yaml
