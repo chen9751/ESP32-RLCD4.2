@@ -1,0 +1,36 @@
+# Optional local speaker test. Not loaded by the default firmware.
+# Physical speaker must be connected to the board's MX1.25 output.
+audio_dac:
+  - platform: es8311
+    id: onboard_dac
+    bits_per_sample: 16bit
+    sample_rate: 16000
+
+speaker:
+  - platform: i2s_audio
+    id: onboard_speaker
+    i2s_audio_id: board_i2s
+    i2s_dout_pin: GPIO8
+    dac_type: external
+    audio_dac: onboard_dac
+    sample_rate: 16000
+    bits_per_sample: 16bit
+
+switch:
+  - platform: gpio
+    id: speaker_amp
+    name: "Speaker Amplifier"
+    pin:
+      number: GPIO46
+      ignore_strapping_warning: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+rtttl:
+  speaker: onboard_speaker
+  gain: 50%
+
+button:
+  - platform: template
+    name: "Speaker Test Tone"
+    on_press:
+      - rtttl.play: "test:d=4,o=5,b=160:c,e,g"
