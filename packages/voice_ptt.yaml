@@ -1,5 +1,5 @@
-# The two onboard microphones are digitized by the ES7210 ADC.
-# This first iteration feeds channel 0 to HA Assist; no local wake model.
+# ES7210 digitizes the onboard microphones. Channel 0 is sent to HA.
+# Hey Jarvis runs on-device and KEY remains a manual fallback.
 i2s_audio:
   - id: board_i2s
     i2s_lrclk_pin: GPIO45
@@ -24,7 +24,6 @@ microphone:
     pdm: false
 
 text_sensor:
-  # STT/response strings remain accessible in HA even before Chinese LCD fonts.
   - platform: template
     id: voice_state
     name: "Assist Status"
@@ -44,6 +43,7 @@ voice_assistant:
     microphone: onboard_mic
     channels: 0
     gain_factor: 4
+  micro_wake_word: local_wake
   use_wake_word: false
   noise_suppression_level: 2
   auto_gain: 31dBFS
@@ -51,16 +51,19 @@ voice_assistant:
   on_client_connected:
     - text_sensor.template.publish:
         id: voice_state
-        state: "Connected"
+        state: "Ready: Hey Jarvis"
+    - micro_wake_word.start:
     - component.update: rlcd_screen
 
   on_client_disconnected:
+    - micro_wake_word.stop:
     - text_sensor.template.publish:
         id: voice_state
         state: "HA Offline"
     - component.update: rlcd_screen
 
   on_listening:
+    - micro_wake_word.stop:
     - text_sensor.template.publish:
         id: voice_state
         state: "Listening"
@@ -81,8 +84,7 @@ voice_assistant:
         state: "Processed"
     - component.update: rlcd_screen
 
-  # Requires HA pipeline with a TTS stage to produce text in this event.
-  # No TTS playback is enabled in the default device configuration.
+  # In HA, this text event requires a TTS stage; there is no speaker output by default.
   on_tts_start:
     - text_sensor.template.publish:
         id: last_reply
@@ -94,9 +96,19 @@ voice_assistant:
         id: voice_state
         state: "Assist Error"
     - component.update: rlcd_screen
+    - if:
+        condition:
+          voice_assistant.connected:
+        then:
+          - micro_wake_word.start:
 
   on_end:
     - text_sensor.template.publish:
         id: voice_state
-        state: "Idle"
+        state: "Ready: Hey Jarvis"
     - component.update: rlcd_screen
+    - if:
+        condition:
+          voice_assistant.connected:
+        then:
+          - micro_wake_word.start:
