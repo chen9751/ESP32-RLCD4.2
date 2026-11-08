@@ -1,0 +1,102 @@
+# The two onboard microphones are digitized by the ES7210 ADC.
+# This first iteration feeds channel 0 to HA Assist; no local wake model.
+i2s_audio:
+  - id: board_i2s
+    i2s_lrclk_pin: GPIO45
+    i2s_bclk_pin: GPIO9
+    i2s_mclk_pin: GPIO16
+
+audio_adc:
+  - platform: es7210
+    id: onboard_adc
+    bits_per_sample: 16bit
+    sample_rate: 16000
+    mic_gain: 24dB
+
+microphone:
+  - platform: i2s_audio
+    id: onboard_mic
+    i2s_audio_id: board_i2s
+    i2s_din_pin: GPIO10
+    adc_type: external
+    sample_rate: 16000
+    bits_per_sample: 16bit
+    pdm: false
+
+text_sensor:
+  # STT/response strings remain accessible in HA even before Chinese LCD fonts.
+  - platform: template
+    id: voice_state
+    name: "Assist Status"
+    entity_category: diagnostic
+
+  - platform: template
+    id: last_command
+    name: "Last Recognized Speech"
+
+  - platform: template
+    id: last_reply
+    name: "Last Assist Reply"
+
+voice_assistant:
+  id: assist
+  microphone:
+    microphone: onboard_mic
+    channels: 0
+    gain_factor: 4
+  use_wake_word: false
+  noise_suppression_level: 2
+  auto_gain: 31dBFS
+
+  on_client_connected:
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "Connected"
+    - component.update: rlcd_screen
+
+  on_client_disconnected:
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "HA Offline"
+    - component.update: rlcd_screen
+
+  on_listening:
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "Listening"
+    - component.update: rlcd_screen
+
+  on_stt_end:
+    - text_sensor.template.publish:
+        id: last_command
+        state: !lambda "return x;"
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "Processing"
+    - component.update: rlcd_screen
+
+  on_intent_end:
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "Processed"
+    - component.update: rlcd_screen
+
+  # Requires HA pipeline with a TTS stage to produce text in this event.
+  # No TTS playback is enabled in the default device configuration.
+  on_tts_start:
+    - text_sensor.template.publish:
+        id: last_reply
+        state: !lambda "return x;"
+    - component.update: rlcd_screen
+
+  on_error:
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "Assist Error"
+    - component.update: rlcd_screen
+
+  on_end:
+    - text_sensor.template.publish:
+        id: voice_state
+        state: "Idle"
+    - component.update: rlcd_screen
