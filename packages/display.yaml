@@ -1,0 +1,52 @@
+# ST7305 is not yet bundled in ESPHome core.
+# Reference: https://docs.waveshare.com/ESP32-ESPHome-Tutorials/Example-RLCD-Voice
+external_components:
+  - source: github://kylehase/ESPHome-ST7305-RLCD
+    components: [st7305_rlcd]
+
+font:
+  - file: "gfonts://Roboto"
+    id: ui_title_font
+    size: 22
+  - file: "gfonts://Roboto@700"
+    id: ui_clock_font
+    size: 60
+  - file: "gfonts://Roboto"
+    id: ui_body_font
+    size: 23
+  - file: "gfonts://Roboto"
+    id: ui_small_font
+    size: 18
+
+display:
+  - platform: st7305_rlcd
+    id: rlcd_screen
+    model: WAVESHARE_400X300
+    width: 400
+    height: 300
+    cs_pin: GPIO40
+    dc_pin: GPIO5
+    reset_pin: GPIO41
+    data_rate: 1MHz
+    update_interval: 30s
+    lambda: |-
+      it.rectangle(0, 0, 400, 300);
+      it.filled_rectangle(0, 0, 400, 42);
+      it.print(200, 21, id(ui_title_font), COLOR_OFF, TextAlign::CENTER, "RLCD ASSIST");
+
+      auto now = id(ha_time).now();
+      if (now.is_valid()) {
+        it.strftime(200, 57, id(ui_clock_font), TextAlign::TOP_CENTER, "%H:%M", now);
+      } else {
+        it.print(200, 58, id(ui_clock_font), TextAlign::TOP_CENTER, "--:--");
+      }
+
+      it.line(15, 140, 385, 140);
+      it.printf(18, 151, id(ui_body_font), "Temp: %.1f C", id(room_temperature).state);
+      it.printf(215, 151, id(ui_body_font), "RH: %.0f%%", id(room_humidity).state);
+      it.printf(18, 187, id(ui_body_font), "Battery: %.2f V", id(battery_voltage).state);
+      it.line(15, 228, 385, 228);
+
+      const char *voice = id(voice_state).has_state() ? id(voice_state).state.c_str() : "Idle";
+      it.printf(18, 238, id(ui_small_font), "VOICE: %.29s", voice);
+      it.print(18, 268, id(ui_small_font), "KEY: speak to HA Assist");
