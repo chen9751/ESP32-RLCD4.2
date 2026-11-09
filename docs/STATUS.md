@@ -1,4 +1,4 @@
-# 开发进度与验收清单（2026-11-09）
+# 开发进度与验收清单（2026-11-10）
 
 此文档按 **源码状态** 和 **实际验证** 分开记录。文件已提交 GitHub ≠ ESPHome 配置可编译 ≠ 实机功能已可用。
 
@@ -18,12 +18,12 @@
 
 - 本机：`bash scripts/compile-macos.sh`（仅创建本地私密 API key + 配置校验 + 编译，不烧录）
 - GitHub Actions：`.github/workflows/validate.yml` 已配置 `config` + `compile` 两步；需要查看实际运行状态才能确认是否通过
-- 当前隔离环境不能联网下载依赖或操作用户 Mac，因此**尚无真实成功编译证据**
+- **2026-11-10 00:33:50 +0800**：用户 Mac 本机 ESPHome 2026.10.2 日志报告 `INFO Successfully compiled program.`，`firmware.factory.bin` / `firmware.ota.bin` / `firmware.elf` 已生成；config_hash=`0xe456f572`，固件镜像总量约 1,185,319 B，DIRAM 静态使用 114,991 B。此条为**用户提供的本机日志**，不是独立的真机验证。
 
 ## 目前尚未得到的证据
 
-- [ ] GitHub Actions `esphome config` 实际运行绿色
-- [ ] 对目标 ESPHome 版本完整 `compile` 成功（外部 ST7305 组件兼容性需要确认）
+- [x] GitHub Actions 早期版本 `config` 和 `compile` 已运行成功；最新版工作流结果须单独核对
+- [x] 用户 Mac 本机 ESPHome 2026.10.2 完整 `compile` 成功（包含 ST7305 外部驱动）；尚未烧录
 - [ ] 真机 USB Serial/JTAG 端口正确枚举及 Improv Serial 客户端成功配网
 - [ ] 断电重启后 Wi-Fi 账号能自动恢复，USB 可重复更改网络
 - [ ] API 加密配对及网络加密 OTA 上传
@@ -39,8 +39,8 @@
 
 ### Phase 1：构建与 USB 配网（下一步优先）
 
-1. CI `config` 通过；必要时修改驱动 ID、引脚、ESPHome 组件参数。
-2. 本机 `compile`；必要时先关闭语音模块来定位兼容问题。
+1. 本机配置校验和完整固件编译 **已通过**；可开始真机步骤。最新版 GitHub Actions 构建另行核对。
+2. 保留本地 `secrets.yaml` 中的设备专属 API key 安全备份，禁止提交 Git。
 3. 首次 USB 烧录，Improv Serial 输 Wi-Fi，保持重启后连接。
 4. HA ESPHome 配对，检查连通性，并测试加密 OTA。
 
