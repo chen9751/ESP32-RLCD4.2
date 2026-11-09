@@ -14,6 +14,12 @@
 - [x] 机密信息示例、.gitignore、CI YAML 校验工作流
 - [x] 初次安装 / HA 配对 / USB 故障恢复文档
 
+## 编译入口
+
+- 本机：`bash scripts/compile-macos.sh`（仅创建本地私密 API key + 配置校验 + 编译，不烧录）
+- GitHub Actions：`.github/workflows/validate.yml` 已配置 `config` + `compile` 两步；需要查看实际运行状态才能确认是否通过
+- 当前隔离环境不能联网下载依赖或操作用户 Mac，因此**尚无真实成功编译证据**
+
 ## 目前尚未得到的证据
 
 - [ ] GitHub Actions `esphome config` 实际运行绿色
