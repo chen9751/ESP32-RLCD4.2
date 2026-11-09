@@ -8,7 +8,7 @@ on:
 jobs:
   config:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -23,3 +23,5 @@ jobs:
           EOF
       - name: Validate USB provisioning and Hey Jarvis configuration
         run: esphome config esp32-rlcd42.yaml
+      - name: Compile ESP32-S3 firmware (no flashing)
+        run: esphome compile esp32-rlcd42.yaml
