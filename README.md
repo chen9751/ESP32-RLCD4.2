@@ -32,6 +32,24 @@
 
 默认配置是 **Hey Jarvis 本地待机唤醒 + KEY 按键备用触发**，Assist 语音录入使用静音检测自动结束，不默认合成语音。
 
+## macOS 本地首次编译（**不烧录**）
+
+在 Mac 的终端执行：
+
+```sh
+mkdir -p ~/Documents/Codex
+cd ~/Documents/Codex
+git clone https://github.com/chen9751/ESP32-RLCD4.2.git
+cd ESP32-RLCD4.2
+bash scripts/compile-macos.sh
+```
+
+脚本要求 **Python 3.12+**（如缺失：`brew install python@3.12`）；将自动建立 `.venv`、安装固定的 ESPHome 2026.10.2、生成本地私有 `secrets.yaml`（仅第一次）、执行 `esphome config` 与 `esphome compile`。**不会执行烧录**，不会请求 Wi-Fi 密码。
+
+如果目录已经克隆过：`cd ~/Documents/Codex/ESP32-RLCD4.2 && git pull --ff-only && bash scripts/compile-macos.sh`。
+
+请保存本机 `secrets.yaml` 的安全备份；这把 API key 是以后 HA 配对和加密 OTA 的必要信息，不能将它提交到 GitHub。出现编译错误时，记录终端从 `ERROR` 开始的相关输出，分享前检查是否包含私密内容。
+
 ## 快速开始：USB 配网
 
 **不在 YAML/固件中填写 Wi-Fi SSID 与密码。** 首次 USB 烧录后，由 ESPHome `improv_serial` 通过 ESP32-S3 原生 USB Serial/JTAG 接收 Wi-Fi 配置；不启用 BLE 配网、开放热点和 Captive Portal。
