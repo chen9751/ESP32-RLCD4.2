@@ -21,3 +21,7 @@ platformio.ini
 .idea/
 .vscode/
 __pycache__/
+
+# Local Python build environment
+.venv/
+venv/
