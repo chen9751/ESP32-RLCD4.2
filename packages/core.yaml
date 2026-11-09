@@ -9,7 +9,7 @@ esphome:
   # Fetch the exact same released version directly from upstream GitHub.
   # ESPHome 'libraries' with Name=URL overrides component-added libraries.
   libraries:
-    - Improv=https://github.com/improv-wifi/sdk-cpp.git#v1.2.7
+    - improv/Improv=https://github.com/improv-wifi/sdk-cpp.git#v1.2.7
 
 
 esp32:
